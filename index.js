@@ -1,44 +1,75 @@
-const eventsContainer = document.querySelector("#container");
-const houresContainer = document.querySelector("#houres");
+function dayEvents(events) {
+  var eventsLength = events.length;
+  var minutes = [];
+  var event, i, j;
 
-const houres = [
-  "9:00 AM",
-  "10:00 AM",
-  "11:00 AM",
-  "12:00 PM",
-  "1:00 PM",
-  "2:00 PM",
-  "3:00 PM",
-  "4:00 PM",
-  "5:00 PM",
-  "6:00 PM",
-  "7:00 PM",
-  "8:00 PM",
-  "9:00 PM",
-];
+  events = events.sort(function (a, b) {
+    return a.id - b.id;
+  });
 
-for (let i = 0; i < houres.length; i++) {
-  houresContainer.insertAdjacentHTML(
-    "beforeend",
-    `<div class="houre">${houres[i]}</div>`
-  );
+  for (i = 0; i < 720; i++) {
+    minutes[i] = [];
+  }
+  console.log(minutes);
+
+  for (i = 0; i < eventsLength; i++) {
+    event = events[i];
+
+    for (j = event.start; j < event.end; j++) {
+      minutes[j].push(event.id);
+    }
+  }
+
+  for (i = 0; i < 720; i++) {
+    var next_hindex = 0;
+    var eventsLengthInMinute = minutes[i].length;
+
+    if (eventsLengthInMinute > 0) {
+      for (j = 0; j < eventsLengthInMinute; j++) {
+        event = events[minutes[i][j] - 1];
+
+        if (!event.collision || event.collision < eventsLengthInMinute) {
+          event.collision = eventsLengthInMinute;
+
+          if (!event.hindex) {
+            event.hindex = next_hindex;
+
+            next_hindex++;
+          }
+        }
+      }
+    }
+  }
+
+  for (i = 0; i < events.length; i++) {
+    event = events[i];
+
+
+    event.width = 498 / event.collision;
+
+    event.left = event.hindex * event.width;
+
+    var div = document.createElement("div");
+
+    div.style.width = event.width + "px";
+    div.style.height = event.end - event.start + "px";
+    div.style.top = event.start + "px";
+    div.style.left = event.left + "px";
+    div.style.position = "absolute";
+    div.style.background = "white";
+    div.style.borderLeft = "solid 2px #809fff";
+
+    console.log(document);
+    document.getElementById("calander").appendChild(div);
+  }
 }
 
-const events = [
-  { id: 1, start: 90, end: 130, left: 0, width: 166 },
-  { id: 2, start: 105, end: 135, left: 166, width: 166 },
-  { id: 3, start: 120, end: 240, left: 332, width: 166 },
-  { id: 4, start: 180, end: 260, left: 0, width: 332 },
-  { id: 5, start: 500, end: 560, left: 0, width: 500 },
+var events = [
+  { id: 1, start: 90, end: 130 },
+  { id: 2, start: 105, end: 135 },
+  { id: 3, start: 120, end: 240 },
+  { id: 4, start: 180, end: 260 },
+  { id: 5, start: 500, end: 560 },
 ];
 
-for (let i = 0; i < events.length; i++) {
-  eventsContainer.insertAdjacentHTML(
-    'beforeend',
-    `<div style="position:absolute;left:${events[i].left}px; width:${events[i].width}px; top:${events[i].start}px; height:${events[i].end - events[i].start}px; background:white;border:solid 0.5px gray;">
-    <h1 style="font-size:8px; color:#6699ff">Sample Item</h1>
-    <h1 style="font-size:7px; color: #737373">Sample Location</h1>
-
-    </div>`
-  );
-}
+dayEvents(events);
